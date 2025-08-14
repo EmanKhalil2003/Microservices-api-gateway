@@ -1,5 +1,6 @@
 package com.e_commerce.api_gateway.filter;
 
+import com.e_commerce.api_gateway.entity.Role;
 import com.e_commerce.api_gateway.service.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -38,14 +39,22 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         }
 
         Long userId = jwtService.extractId(token);
-        String role = jwtService.extractRole(token).name();
+        Role role = jwtService.extractRole(token);
+
+        if(path.startsWith("/seller") && role != Role.SELLER) {
+            throw new RuntimeException();
+        }
+
+        if(path.startsWith("/buyer") && role != Role.BUYER) {
+            throw new RuntimeException();
+        }
+
 
         System.out.println(userId+" "+role);
         // Pass the extracted details to downstream services
         ServerWebExchange mutatedExchange = exchange.mutate()
                 .request(r -> r.headers(h -> {
                     h.add("X-User-Id", String.valueOf(userId));
-                    h.add("X-Role", role);
                 }))
                 .build();
 
