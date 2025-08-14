@@ -15,6 +15,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // new way to disable CSRF
                 .authorizeExchange(exchange -> exchange
                         .pathMatchers("/auth/**").permitAll()  // allow signup/login
+                        .pathMatchers("/**").permitAll()
                         .anyExchange().authenticated()         // all other endpoints require auth
                 )
                 .httpBasic(httpBasic -> httpBasic.disable()); // disable default HTTP Basic login
